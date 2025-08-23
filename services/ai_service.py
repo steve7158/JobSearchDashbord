@@ -48,6 +48,14 @@ class BaseAIProvider(ABC):
     def get_default_model(self) -> str:
         """Get the default model for this provider."""
         pass
+    
+    @abstractmethod
+    def get_chatcompletion(self, prompt: str, 
+                          max_tokens: int = 300, 
+                          temperature: float = 0.3,
+                          model: Optional[str] = None) -> Optional[str]:
+        """Get chat completion with a simple prompt."""
+        pass
 
 
 class OpenAIProvider(BaseAIProvider):
@@ -98,6 +106,33 @@ class OpenAIProvider(BaseAIProvider):
     def get_default_model(self) -> str:
         """Get default OpenAI model."""
         return "gpt-3.5-turbo"
+    
+    def get_chatcompletion(self, prompt: str, 
+                          max_tokens: int = 300, 
+                          temperature: float = 0.3,
+                          model: Optional[str] = None) -> Optional[str]:
+        """
+        Get chat completion from OpenAI with a simple prompt.
+        
+        Args:
+            prompt: User prompt/question
+            max_tokens: Maximum tokens in response
+            temperature: Creativity level (0.0 to 1.0)
+            model: Model to use (optional, uses default if not specified)
+            
+        Returns:
+            AI response as string or None if failed
+        """
+        if not self.is_available():
+            return None
+        
+        messages = [{"role": "user", "content": prompt}]
+        return self.generate_completion(
+            messages=messages,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            model=model
+        )
     
     def get_available_models(self) -> List[str]:
         """Get available OpenAI models."""
@@ -159,6 +194,33 @@ class GroqProvider(BaseAIProvider):
     def get_default_model(self) -> str:
         """Get default Groq model."""
         return "llama3-8b-8192"
+    
+    def get_chatcompletion(self, prompt: str, 
+                          max_tokens: int = 300, 
+                          temperature: float = 0.3,
+                          model: Optional[str] = None) -> Optional[str]:
+        """
+        Get chat completion from Groq with a simple prompt.
+        
+        Args:
+            prompt: User prompt/question
+            max_tokens: Maximum tokens in response
+            temperature: Creativity level (0.0 to 1.0)
+            model: Model to use (optional, uses default if not specified)
+            
+        Returns:
+            AI response as string or None if failed
+        """
+        if not self.is_available():
+            return None
+        
+        messages = [{"role": "user", "content": prompt}]
+        return self.generate_completion(
+            messages=messages,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            model=model
+        )
     
     def get_available_models(self) -> List[str]:
         """Get available Groq models (includes Llama, Mixtral, Gemma)."""
@@ -261,6 +323,33 @@ class UnifiedAIService:
             max_tokens=max_tokens,
             temperature=temperature,
             model=model
+        )
+    
+    def get_chatcompletion(self, prompt: str, 
+                          max_tokens: int = 300, 
+                          temperature: float = 0.3,
+                          model: Optional[str] = None) -> Optional[str]:
+        """
+        Get chat completion using the current provider with a simple prompt.
+        
+        Args:
+            prompt: User prompt/question
+            max_tokens: Maximum tokens in response
+            temperature: Creativity level (0.0 to 1.0)
+            model: Model to use (optional, uses current model if not specified)
+            
+        Returns:
+            AI response as string or None if failed
+        """
+        if not self.is_available():
+            return None
+        
+        provider = self.providers[self.current_provider]
+        return provider.get_chatcompletion(
+            prompt=prompt,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            model=model or self.current_model
         )
     
     def generate_json_completion(self, prompt: str, 

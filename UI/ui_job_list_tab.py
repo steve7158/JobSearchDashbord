@@ -3,6 +3,8 @@ import pandas as pd
 from datetime import datetime
 from typing import List, Dict, Any, Optional, Tuple
 
+from Utils.prompt import SUMERIZE_PROMPT_TEMPLATE
+
 
 class JobListTabUI:
     """
@@ -145,6 +147,16 @@ class JobListTabUI:
         if pd.notna(job.get('description')) and job.get('description'):
             with st.expander("📝 View Job Description"):
                 description = str(job.get('description'))
+                
+                # Add summarize button
+                col1, col2 = st.columns([3, 1])
+                with col2:
+                    if st.button("🤖 Summarize", key=f"summarize_{hash(str(job.get('title', 'unknown')))}_{job.name if hasattr(job, 'name') else 'job'}"):
+                        self._summarize_job_description(description)
+                
+                with col1:
+                    st.markdown("**Full Description:**")
+                
                 st.markdown(description)
         
         # Additional details in collapsible menu
@@ -238,6 +250,13 @@ class JobListTabUI:
                 st.rerun()
             else:
                 st.error("Failed to record application")
+        
+        # Generate Cover Letter button (only if job description is available)
+        if pd.notna(job.get('description')) and job.get('description'):
+            if st.button("📄 Generate Cover Letter", key=f"cover_letter_{job_index}_{job.get('title', 'unknown')}", use_container_width=True):
+                self._generate_cover_letter(job)
+            else:
+                st.error("Failed to record application")
     
     def _mark_job_as_applied(self, job: pd.Series) -> bool:
         """Mark a job as applied by adding it to application history."""
@@ -248,3 +267,100 @@ class JobListTabUI:
         except Exception as e:
             st.error(f"Error marking job as applied: {e}")
             return False
+    
+    def _summarize_job_description(self, description: str):
+        """Summarize job description using AI service."""
+        try:
+            from services.ai_service import ai_service
+            
+            if not ai_service.is_available():
+                st.error("AI service is not available. Please check your API keys.")
+                return
+            
+            # Create a prompt for summarizing the job description
+            prompt = SUMERIZE_PROMPT_TEMPLATE.format(description=description)
+            
+            with st.spinner("Generating summary..."):
+                summary = ai_service.get_chatcompletion(
+                    prompt=prompt,
+                    max_tokens=500,
+                    temperature=0.3
+                )
+            
+            if summary:
+                st.success("Summary generated!")
+                st.markdown("**AI Summary:**")
+                st.markdown(summary)
+            else:
+                st.error("Failed to generate summary. Please try again.")
+                
+        except Exception as e:
+            st.error(f"Error generating summary: {str(e)}")
+            st.info("Make sure the AI service is properly configured with valid API keys.")
+    
+    def _generate_cover_letter(self, job: pd.Series):
+        """Generate cover letter for the job using AI service."""
+        try:
+            from services.cover_letter_service import CoverLetterGenerator
+            
+            generator = CoverLetterGenerator()
+            
+            # Check if AI service is available
+            if not generator.ai_service.is_available():
+                st.error("AI service is not available. Please check your API keys.")
+                return
+            
+            description = str(job.get('description', ''))
+            
+            with st.spinner("Generating personalized cover letter..."):
+                html_file, cover_letter_data = generator.generate_cover_letter_from_job(
+                    job_description=description
+                )
+            
+            if html_file and cover_letter_data:
+                st.success("Cover letter generated successfully!")
+                
+                # Show summary of generated cover letter
+                st.markdown("### 📄 Cover Letter Generated")
+                
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.markdown(f"**Company:** {cover_letter_data.get('company_name', 'Unknown')}")
+                    st.markdown(f"**Position:** {cover_letter_data.get('position_title', 'Unknown')}")
+                
+                with col2:
+                    st.markdown(f"**Hiring Manager:** {cover_letter_data.get('hiring_manager_name', 'Unknown')}")
+                    st.markdown(f"**File:** {html_file}")
+                
+                # Show a preview of the opening paragraph
+                if cover_letter_data.get('opening_paragraph'):
+                    with st.expander("📖 Preview Opening Paragraph"):
+                        st.markdown(f"*{cover_letter_data.get('opening_paragraph')}*")
+                
+                # Provide download/view options
+                col1, col2 = st.columns(2)
+                with col1:
+                    # Create download button for the HTML file
+                    try:
+                        with open(html_file, 'r', encoding='utf-8') as f:
+                            html_content = f.read()
+                        
+                        st.download_button(
+                            label="📥 Download HTML",
+                            data=html_content,
+                            file_name=f"cover_letter_{cover_letter_data.get('company_name', 'unknown').replace(' ', '_')}.html",
+                            mime="text/html",
+                            use_container_width=True
+                        )
+                    except Exception as e:
+                        st.error(f"Error creating download: {e}")
+                
+                with col2:
+                    st.info("💡 Open the HTML file in your browser and print to PDF")
+            
+            else:
+                st.error("Failed to generate cover letter. Please try again.")
+                
+        except Exception as e:
+            st.error(f"Error generating cover letter: {str(e)}")
+            st.info("Make sure the AI service is properly configured with valid API keys.")

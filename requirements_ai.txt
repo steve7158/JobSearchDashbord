@@ -4,6 +4,7 @@
 # For Groq support (fast inference)
 groq>=0.4.1
 
+
 # For enhanced .env support
 python-dotenv>=1.0.0
 
