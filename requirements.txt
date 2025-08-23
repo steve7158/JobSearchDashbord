@@ -1,0 +1,28 @@
+# Core dependencies
+streamlit
+pandas
+plotly
+python-dotenv
+pywebview
+
+# Job scraping
+jobspy
+
+# Web automation
+selenium
+playwright
+beautifulsoup4
+html2text
+
+# LLM APIs
+openai
+groq
+anthropic
+
+# Data processing
+requests
+openpyxl
+
+# Optional: for PDF resume parsing
+# PyPDF2>=3.0.0
+# pdfplumber>=0.9.0
