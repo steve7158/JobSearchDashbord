@@ -106,14 +106,14 @@ class JobListTabUI:
                         st.write(f"🏢 {job.get('company', 'Unknown')}")
                 
                 with col2:
-                    self._render_job_details(job)
+                    self._render_job_details(job, idx)
                 
                 with col3:
                     self._render_job_action_buttons(job, idx)
                 
                 st.divider()
     
-    def _render_job_details(self, job: pd.Series):
+    def _render_job_details(self, job: pd.Series, job_index: int = None):
         """Render detailed job information."""
         # Basic job info
         st.markdown(f"**{job.get('title', 'No Title')}**")
@@ -152,12 +152,33 @@ class JobListTabUI:
                 col1, col2 = st.columns([3, 1])
                 with col2:
                     if st.button("🤖 Summarize", key=f"summarize_{hash(str(job.get('title', 'unknown')))}_{job.name if hasattr(job, 'name') else 'job'}"):
-                        self._summarize_job_description(description)
+                        summary = self._summarize_job_description(description)
+                        if summary:
+                            # Update the job description with the summary
+                            # Create a unique key using title, company, and index
+                            job_title = str(job.get('title', 'unknown')).replace(' ', '_')
+                            job_company = str(job.get('company', 'unknown')).replace(' ', '_')
+                            job_key = f"job_summary_{job_title}_{job_company}_{job_index}"
+                            st.session_state[job_key] = summary
+                            st.rerun()
                 
                 with col1:
                     st.markdown("**Full Description:**")
                 
-                st.markdown(description)
+                # Check if we have a summary for this job
+                job_title = str(job.get('title', 'unknown')).replace(' ', '_')
+                job_company = str(job.get('company', 'unknown')).replace(' ', '_')
+                job_key = f"job_summary_{job_title}_{job_company}_{job_index}"
+                if job_key in st.session_state:
+                    st.markdown("**🤖 AI Summary:**")
+                    st.markdown(st.session_state[job_key])
+                    
+                    # Option to show original description
+                    if st.button("👁️ Show Original", key=f"show_original_{hash(str(job.get('title', 'unknown')))}_{job.name if hasattr(job, 'name') else 'job'}"):
+                        del st.session_state[job_key]
+                        st.rerun()
+                else:
+                    st.markdown(description)
         
         # Additional details in collapsible menu
         with st.expander("ℹ️ Additional Details"):
@@ -275,7 +296,7 @@ class JobListTabUI:
             
             if not ai_service.is_available():
                 st.error("AI service is not available. Please check your API keys.")
-                return
+                return None
             
             # Create a prompt for summarizing the job description
             prompt = SUMERIZE_PROMPT_TEMPLATE.format(description=description)
@@ -289,14 +310,15 @@ class JobListTabUI:
             
             if summary:
                 st.success("Summary generated!")
-                st.markdown("**AI Summary:**")
-                st.markdown(summary)
+                return summary
             else:
                 st.error("Failed to generate summary. Please try again.")
+                return None
                 
         except Exception as e:
             st.error(f"Error generating summary: {str(e)}")
             st.info("Make sure the AI service is properly configured with valid API keys.")
+            return None
     
     def _generate_cover_letter(self, job: pd.Series):
         """Generate cover letter for the job using AI service."""
@@ -321,21 +343,21 @@ class JobListTabUI:
                 st.success("Cover letter generated successfully!")
                 
                 # Show summary of generated cover letter
-                st.markdown("### 📄 Cover Letter Generated")
+                # st.markdown("### 📄 Cover Letter Generated")
                 
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.markdown(f"**Company:** {cover_letter_data.get('company_name', 'Unknown')}")
-                    st.markdown(f"**Position:** {cover_letter_data.get('position_title', 'Unknown')}")
+                # col1, col2 = st.columns(2)
+                # with col1:
+                #     st.markdown(f"**Company:** {cover_letter_data.get('company_name', 'Unknown')}")
+                #     st.markdown(f"**Position:** {cover_letter_data.get('position_title', 'Unknown')}")
                 
-                with col2:
-                    st.markdown(f"**Hiring Manager:** {cover_letter_data.get('hiring_manager_name', 'Unknown')}")
-                    st.markdown(f"**File:** {html_file}")
+                # with col2:
+                #     st.markdown(f"**Hiring Manager:** {cover_letter_data.get('hiring_manager_name', 'Unknown')}")
+                #     st.markdown(f"**File:** {html_file}")
                 
                 # Show a preview of the opening paragraph
-                if cover_letter_data.get('opening_paragraph'):
-                    with st.expander("📖 Preview Opening Paragraph"):
-                        st.markdown(f"*{cover_letter_data.get('opening_paragraph')}*")
+                # if cover_letter_data.get('opening_paragraph'):
+                #     with st.expander("📖 Preview Opening Paragraph"):
+                #         st.markdown(f"*{cover_letter_data.get('opening_paragraph')}*")
                 
                 # Provide download/view options
                 col1, col2 = st.columns(2)
@@ -355,8 +377,8 @@ class JobListTabUI:
                     except Exception as e:
                         st.error(f"Error creating download: {e}")
                 
-                with col2:
-                    st.info("💡 Open the HTML file in your browser and print to PDF")
+                # with col2:
+                #     st.info("💡 Open the HTML file in your browser and print to PDF")
             
             else:
                 st.error("Failed to generate cover letter. Please try again.")

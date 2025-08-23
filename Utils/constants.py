@@ -228,44 +228,44 @@ COVER_LETTER_TEMPLATE="""
     <button class="pdf-button" onclick="printToPDF()">📄 Save as PDF</button>
     
     <div class="header">
-        <div class="applicant-name">{data['applicant_name']}</div>
+        <div class="applicant-name">{applicant_name}</div>
         <div class="contact-info">
-            {data['phone']} • <a href="mailto:{data['email']}">{data['email']}</a><br>
-            {data['address']}<br>
-            <a href="{data['linkedin']}" target="_blank">LinkedIn</a> • <a href="{data['portfolio']}" target="_blank">Portfolio</a>
+            {phone} • <a href="mailto:{email}">{email}</a><br>
+            {address}<br>
+            <a href="{linkedin}" target="_blank">LinkedIn</a> • <a href="{portfolio}" target="_blank">Portfolio</a>
         </div>
     </div>
     
     <div class="date-section">
-        {data['date']}
+        {date}
     </div>
     
     <div class="employer-info">
-        <div class="employer-name">{data['hiring_manager_name']}</div>
-        <div class="employer-title">{data['hiring_manager_title']}</div>
-        <div class="employer-company">{data['company_name']}</div>
-        <div>{data['company_address']}</div>
+        <div class="employer-name">{hiring_manager_name}</div>
+        <div class="employer-title">{hiring_manager_title}</div>
+        <div class="employer-company">{company_name}</div>
+        <div>{company_address}</div>
     </div>
     
     <div class="salutation">
-        Dear {data['salutation']},
+        Dear {salutation},
     </div>
     
     <div class="content">
         <div class="paragraph">
-            I am writing to express my strong interest in the <span class="position-title">{data['position_title']}</span> position at <span class="highlight">{data['company_name']}</span>. {data['opening_paragraph']}
+            I am writing to express my strong interest in the <span class="position-title">{position_title}</span> position at <span class="highlight">{company_name}</span>. {opening_paragraph}
         </div>
         
         <div class="paragraph">
-            {data['body_paragraph_1']}
+            {body_paragraph_1}
         </div>
         
         <div class="paragraph">
-            {data['body_paragraph_2']}
+            {body_paragraph_2}
         </div>
         
         <div class="paragraph">
-            {data['closing_paragraph']}
+            {closing_paragraph}
         </div>
     </div>
     
@@ -275,7 +275,7 @@ COVER_LETTER_TEMPLATE="""
         </div>
         <div class="signature-area">
             <div class="signature-line"></div>
-            <div class="printed-name">{data['applicant_name']}</div>
+            <div class="printed-name">{applicant_name}</div>
         </div>
     </div>
 </body>
@@ -290,7 +290,7 @@ COVER_LETTER_DATA_TEMPLATE={
         'address': '123 Main Street, City, State 12345',
         'linkedin': 'https://linkedin.com/in/johndoe',
         'portfolio': 'https://johndoe.dev',
-        'date': datetime.now().strftime('%B %d, %Y'),
+        'date': datetime.datetime.now().strftime('%B %d, %Y'),
         'hiring_manager_name': 'Jane Smith',
         'hiring_manager_title': 'Hiring Manager',
         'company_name': 'TechCorp Industries',
@@ -310,7 +310,7 @@ USER_DATA = {
     'address': '123 Main Street, City, State 12345',
     'linkedin': 'https://linkedin.com/in/johndoe',
     'portfolio': 'https://johndoe.dev',
-    'date': datetime.now().strftime('%B %d, %Y'),
+    'date': datetime.datetime.now().strftime('%B %d, %Y'),
     'work_experiences': [
         {
             'company': 'ABC Technology',
