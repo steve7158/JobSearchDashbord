@@ -276,8 +276,7 @@ class JobListTabUI:
         if pd.notna(job.get('description')) and job.get('description'):
             if st.button("📄 Generate Cover Letter", key=f"cover_letter_{job_index}_{job.get('title', 'unknown')}", use_container_width=True):
                 self._generate_cover_letter(job)
-            else:
-                st.error("Failed to record application")
+            
     
     def _mark_job_as_applied(self, job: pd.Series) -> bool:
         """Mark a job as applied by adding it to application history."""
@@ -371,7 +370,7 @@ class JobListTabUI:
                             label="📥 Download HTML",
                             data=html_content,
                             file_name=f"cover_letter_{cover_letter_data.get('company_name', 'unknown').replace(' ', '_')}.html",
-                            mime="text/html",
+                            mime="application/octet-stream",
                             use_container_width=True
                         )
                     except Exception as e:

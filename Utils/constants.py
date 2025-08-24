@@ -228,8 +228,8 @@ COVER_LETTER_TEMPLATE="""
     <button class="pdf-button" onclick="printToPDF()">📄 Save as PDF</button>
     
     <div class="header">
-        <div class="applicant-name">{applicant_name}</div>
-        <div class="contact-info">
+        <div class="applicant-name" contenteditable="true">{applicant_name}</div>
+        <div class="contact-info" contenteditable="true">
             {phone} • <a href="mailto:{email}">{email}</a><br>
             {address}<br>
             <a href="{linkedin}" target="_blank">LinkedIn</a> • <a href="{portfolio}" target="_blank">Portfolio</a>
@@ -241,10 +241,10 @@ COVER_LETTER_TEMPLATE="""
     </div>
     
     <div class="employer-info">
-        <div class="employer-name">{hiring_manager_name}</div>
-        <div class="employer-title">{hiring_manager_title}</div>
-        <div class="employer-company">{company_name}</div>
-        <div>{company_address}</div>
+        <div class="employer-name" contenteditable="true">{hiring_manager_name}</div>
+        <div class="employer-title" contenteditable="true">{hiring_manager_title}</div>
+        <div class="employer-company" contenteditable="true">{company_name}</div>
+        <div contenteditable="true">{company_address}</div>
     </div>
     
     <div class="salutation">
@@ -252,19 +252,19 @@ COVER_LETTER_TEMPLATE="""
     </div>
     
     <div class="content">
-        <div class="paragraph">
+        <div class="paragraph", contenteditable="true">
             I am writing to express my strong interest in the <span class="position-title">{position_title}</span> position at <span class="highlight">{company_name}</span>. {opening_paragraph}
         </div>
-        
-        <div class="paragraph">
+
+        <div class="paragraph", contenteditable="true">
             {body_paragraph_1}
         </div>
         
-        <div class="paragraph">
+        <div class="paragraph", contenteditable="true">
             {body_paragraph_2}
         </div>
         
-        <div class="paragraph">
+        <div class="paragraph", contenteditable="true">
             {closing_paragraph}
         </div>
     </div>
@@ -304,32 +304,51 @@ COVER_LETTER_DATA_TEMPLATE={
     }
 
 USER_DATA = {
-    'applicant_name': 'John Doe',
-    'phone': '(555) 123-4567',
-    'email': 'john.doe@email.com',
-    'address': '123 Main Street, City, State 12345',
-    'linkedin': 'https://linkedin.com/in/johndoe',
-    'portfolio': 'https://johndoe.dev',
-    'date': datetime.datetime.now().strftime('%B %d, %Y'),
-    'work_experiences': [
+    "applicant_name": "Steve Jose Motha",
+    "phone": "+91 9911135124",
+    "email": "stevejmotha.jobs@gmail.com",
+    "address": "South City 2, Sector 49, Gurgaon, Haryana, India",
+    "linkedin": "https://www.linkedin.com/in/stevejosemotha/",
+    "portfolio": "",
+    "date": "August 24, 2025",
+    "work_experiences": [
         {
-            'company': 'ABC Technology',
-            'position': 'Senior Software Developer',
-            'duration': '2020-2023',
-            'description': 'Led development of microservices architecture, improved system performance by 40%'
+        "company": "Accenture",
+        "position": "Application development analyst",
+        "duration": "AUGUST 2021 - PRESENT",
+        "description": "Developed a versatile Web application to streamline project management processes, including resource allocation, cost management, and planning, adaptable to global pricing variations. Collaborated closely with the global business teams from Chicago and Argentina. Carried out end to end migration to OData RESTful API for the entire application. Integrated accessibility features on frontend of the application (key navigation and text to speech). Configured a Large Language Model (LLM) bot capable of engaging in natural, human-like conversations. Led migration from JavaScript to TypeScript with OOP principles; updated CI/CD with Webpack to generate minified bundles; reduced code repetition by creating a reusable utility package (60% reduction)."
         },
         {
-            'company': 'XYZ Solutions',
-            'position': 'Full Stack Developer',
-            'duration': '2018-2020',
-            'description': 'Developed web applications using Python and JavaScript, managed database optimization'
-        },
-        {
-            'company': 'StartupTech',
-            'position': 'Junior Developer',
-            'duration': '2016-2018',
-            'description': 'Built responsive web interfaces, collaborated with cross-functional teams'
+        "company": "Loumus Data System pvt ltd",
+        "position": "SDE Internship",
+        "duration": "June 2019 - October 2019",
+        "description": "Developed a Python-based program to parse large numbers of resumes into categories based on business requirements using NLTK."
         }
     ],
-    'skills': ['python', 'javascript', 'microservices', 'machine learning']
-}
+    "skills": [
+        "Python",
+        "JavaScript",
+        "TypeScript",
+        "C",
+        "SQL",
+        "Bash",
+        "Angular",
+        "Node JS",
+        "Flask",
+        "Django",
+        "Git",
+        "OpenAI GPT 4",
+        "Knowledge Graphs",
+        "Natural Language Processing",
+        "neo4j",
+        "FlowiseAI",
+        "Langflow",
+        "Terraform",
+        "Linux",
+        "Windows",
+        "MacOS",
+        "Google Cloud Platform",
+        "Amazon Web Services",
+        "Microsoft Azure"
+        ]
+    }
