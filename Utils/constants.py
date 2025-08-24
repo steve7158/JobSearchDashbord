@@ -252,15 +252,15 @@ COVER_LETTER_TEMPLATE="""
     </div>
     
     <div class="content">
-        <div class="paragraph", contenteditable="true">
+        <div class="paragraph" contenteditable="true">
             I am writing to express my strong interest in the <span class="position-title">{position_title}</span> position at <span class="highlight">{company_name}</span>. {opening_paragraph}
         </div>
 
-        <div class="paragraph", contenteditable="true">
+        <div class="paragraph" contenteditable="true">
             {body_paragraph_1}
         </div>
         
-        <div class="paragraph", contenteditable="true">
+        <div class="paragraph" contenteditable="true">
             {body_paragraph_2}
         </div>
         
