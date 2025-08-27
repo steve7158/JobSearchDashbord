@@ -9,6 +9,7 @@ from typing import Dict, Any, Optional, Tuple
 from UI.ui_hiringmanager import HiringManagerUI
 from UI.ui_main import MainUITabs
 from UI.ui_summaryMetrics import SummaryMetricsUI
+from UI.ui_utilities import UtilitiesUI
 from Utils.constants import FOOTER_HTML, STYLES_STREAMLIT
 from services.job_portal_service import JobPortalService
 from UI.ui_sidebar import JobSearchSidebar
@@ -35,6 +36,7 @@ class JobPortalDashboard:
         self.hiringManagerUI = HiringManagerUI()
         self.summaryMetricsUI = SummaryMetricsUI()
         self.mainUITabs = MainUITabs()
+        self.utilitiesUI = UtilitiesUI()
     def configure_page(self):
         """Configure Streamlit page settings."""
         st.set_page_config(
@@ -54,7 +56,8 @@ class JobPortalDashboard:
             'jobs_data': None,
             'last_search_time': None,
             'auth_browser_opened': False,
-            'auth_completed': False
+            'auth_completed': False,
+            'current_view': 'main'  # New state for view switching
         }
         
         for key, default_value in session_defaults.items():
@@ -77,8 +80,26 @@ class JobPortalDashboard:
         return JobPortalService(linkedin_email=linkedin_email, linkedin_password=linkedin_password)
 
     def render_header(self):
-        """Render the dashboard header."""
-        st.markdown('<h1 class="main-header">💼 Job Portal Dashboard</h1>', unsafe_allow_html=True)
+        """Render the dashboard header with view switching functionality."""
+        # Create header with view switching buttons
+        col1, col2, col3 = st.columns([3, 1, 1])
+        
+        with col1:
+            if st.session_state.current_view == 'main':
+                st.markdown('<h1 class="main-header">💼 Job Portal Dashboard</h1>', unsafe_allow_html=True)
+            else:
+                st.markdown('<h1 class="main-header">🔧 Utilities Dashboard</h1>', unsafe_allow_html=True)
+        
+        with col2:
+            if st.button("💼 Main View", type="primary" if st.session_state.current_view == 'main' else "secondary"):
+                st.session_state.current_view = 'main'
+                st.rerun()
+        
+        with col3:
+            if st.button("🔧 Utilities", type="primary" if st.session_state.current_view == 'utilities' else "secondary"):
+                st.session_state.current_view = 'utilities'
+                st.rerun()
+        
         st.markdown("---")
     
     def perform_job_search(self, search_config: Dict[str, Any], job_service) -> bool:
@@ -160,40 +181,46 @@ class JobPortalDashboard:
         """Main method to run the dashboard."""
         self.render_header()
         
-        # Initialize and render sidebar
-        search_config, search_button, job_service = self.sidebar.render()
-        
-        # Main content area
-        if search_button and search_config['selected_sites']:
-            with st.spinner("🔍 Searching for jobs... This may take a few moments."):
-                success = self.perform_job_search(search_config, job_service)
-                if not success:
-                    st.stop()
-        
-        elif search_button and not search_config['selected_sites']:
-            st.warning("⚠️ Please select at least one job site to search.")
-        
-        # Display results if data exists
-        if st.session_state.jobs_data is not None:
-            jobs_df = st.session_state.jobs_data
-            
-            # Display last search info
-            if st.session_state.last_search_time:
-                st.info(f"📅 Last search: {st.session_state.last_search_time.strftime('%Y-%m-%d %H:%M:%S')}")
-            
-            # Hiring Manager Section
-            self.hiringManagerUI.render(jobs_df, job_service)
-            # Summary metrics
-            self.summaryMetricsUI.render(jobs_df)
-            st.markdown("---")
-            
-            # Main tabs
-            self.mainUITabs.render_main_tabs(jobs_df, job_service)
-        
+        # Check current view and render accordingly
+        if st.session_state.current_view == 'utilities':
+            # Render utilities view
+            self.utilitiesUI.render()
         else:
-            self.render_welcome_message()
+            # Render main dashboard view
+            # Initialize and render sidebar
+            search_config, search_button, job_service = self.sidebar.render()
+            
+            # Main content area
+            if search_button and search_config['selected_sites']:
+                with st.spinner("🔍 Searching for jobs... This may take a few moments."):
+                    success = self.perform_job_search(search_config, job_service)
+                    if not success:
+                        st.stop()
+            
+            elif search_button and not search_config['selected_sites']:
+                st.warning("⚠️ Please select at least one job site to search.")
+            
+            # Display results if data exists
+            if st.session_state.jobs_data is not None:
+                jobs_df = st.session_state.jobs_data
+                
+                # Display last search info
+                if st.session_state.last_search_time:
+                    st.info(f"📅 Last search: {st.session_state.last_search_time.strftime('%Y-%m-%d %H:%M:%S')}")
+                
+                # Hiring Manager Section
+                self.hiringManagerUI.render(jobs_df, job_service)
+                # Summary metrics
+                self.summaryMetricsUI.render(jobs_df)
+                st.markdown("---")
+                
+                # Main tabs
+                self.mainUITabs.render_main_tabs(jobs_df, job_service)
+            
+            else:
+                self.render_welcome_message()
         
-        # Footer
+        # Footer (always rendered)
         self.render_footer()
 
 
